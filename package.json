@@ -1,0 +1,12 @@
+{
+  "name": "ormonitor",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Monitor for ORMP",
+  "workspaces": [
+    "server"
+  ],
+  "scripts": {
+    "dev": "yarn workspace server dev"
+  }
+}

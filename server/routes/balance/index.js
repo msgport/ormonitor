@@ -3,7 +3,7 @@ import { getAllChains } from "../../config/chains.js"
 import { unitToEth } from "./helper.js";
 
 export default async function (fastify) {
-    fastify.get('/operators', async function () {
+    fastify.get('/operatorsBalance', async function () {
         return await checkOperatorBalance()
     })
 

@@ -4,9 +4,13 @@
   "version": "1.0.0",
   "description": "Monitor for ORMP",
   "workspaces": [
-    "server"
+    "server",
+    "client"
   ],
   "scripts": {
-    "dev": "yarn workspace server dev"
+    "dev": "concurrently \"yarn workspace server dev\" \"yarn workspace client start\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }

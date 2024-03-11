@@ -43,7 +43,7 @@ const Chains = [
         "warnBalance": 100,
       },
       "symbol": "RING",
-      "scan": "https://darwinia.subscan.io",
+      "scan": "https://darwinia-evm.subscan.io",
     },
     {
       "name": "arbitrum",

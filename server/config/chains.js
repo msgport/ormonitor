@@ -17,8 +17,10 @@ const Chains = [
     "operator": {
       "oracle": "0x178E699c9a6bB2Cd624557Fbd85ed219e6faBa77",
       "relayer": "0x912D7601569cBc2DF8A7f0aaE50BFd18e8C64d05",
+      "warnBalance": 100,
     },
-    "symbol": "CRAB"
+    "symbol": "CRAB",
+    "scan": "https://crab.subscan.io",
   },
   {
     "name": "darwinia",
@@ -38,8 +40,10 @@ const Chains = [
     "operator": {
       "oracle": "0x178E699c9a6bB2Cd624557Fbd85ed219e6faBa77",
       "relayer": "0x912D7601569cBc2DF8A7f0aaE50BFd18e8C64d05",
+      "warnBalance": 100,
     },
-    "symbol": "RING"
+    "symbol": "RING",
+    "scan": "https://darwinia-evm.subscan.io",
   },
   {
     "name": "arbitrum",
@@ -59,8 +63,10 @@ const Chains = [
     "operator": {
       "oracle": "0x178E699c9a6bB2Cd624557Fbd85ed219e6faBa77",
       "relayer": "0x912D7601569cBc2DF8A7f0aaE50BFd18e8C64d05",
+      "warnBalance": 0.01,
     },
-    "symbol": "AETH"
+    "symbol": "AETH",
+    "scan": "https://arbiscan.io",
   },
   {
     "name": "ethereum",
@@ -80,8 +86,10 @@ const Chains = [
     "operator": {
       "oracle": "0x178E699c9a6bB2Cd624557Fbd85ed219e6faBa77",
       "relayer": "0x912D7601569cBc2DF8A7f0aaE50BFd18e8C64d05",
+      "warnBalance": 0.02,
     },
-    "symbol": "ETH"
+    "symbol": "ETH",
+    "scan": "https://etherscan.io",
   },
   {
     "name": "polygon",
@@ -101,8 +109,10 @@ const Chains = [
     "operator": {
       "oracle": "0x178E699c9a6bB2Cd624557Fbd85ed219e6faBa77",
       "relayer": "0x912D7601569cBc2DF8A7f0aaE50BFd18e8C64d05",
+      "warnBalance": 0.1,
     },
-    "symbol": "MATIC"
+    "symbol": "MATIC",
+    "scan": "https://polygonscan.com",
   },
   {
     "name": "blast",
@@ -122,8 +132,10 @@ const Chains = [
     "operator": {
       "oracle": "0x178E699c9a6bB2Cd624557Fbd85ed219e6faBa77",
       "relayer": "0x912D7601569cBc2DF8A7f0aaE50BFd18e8C64d05",
+      "warnBalance": 0.01,
     },
-    "symbol": "ETH"
+    "symbol": "ETH",
+    "scan": "https://blastscan.io",
   }
 ]
 

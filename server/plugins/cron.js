@@ -5,12 +5,14 @@ import { unitToEth } from '../routes/balance/helper.js';
 import { ethers } from 'ethers';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime.js';
+import axios from "axios";
 
 dayjs.extend(relativeTime);
 
 export default fp(async () => {
 
     cron.schedule('*/1 * * * *', async () => {
+        await healthCheck();
         await checkOperatorBalance();
         await checkOracleSignerBalance();
         await checkOracleSignerSubmition();
@@ -116,5 +118,9 @@ export default fp(async () => {
             }
         }
         console.log(warns);
+    }
+
+    async function healthCheck() {
+       await  axios.get("https://hc-ping.com/5B4xQyjO7c1ReOiZiaS4yQ/ormonitor");
     }
 })

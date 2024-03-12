@@ -1,17 +1,22 @@
-import requests from './utils/requests';
 import { ethers } from 'ethers';
 import './App.css';
 import { React, useState, useEffect } from 'react';
 import { getAllChains, getChainById } from './utils/chains';
-import { Layout, Card, Space, List, ConfigProvider, Alert } from 'antd';
+import { Layout, Card, Space, List, ConfigProvider } from 'antd';
 import { unitToEth } from './utils/ethersHelper';
-const { Header, Footer, Content } = Layout;
+import dayjs from "dayjs";
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+dayjs.extend(relativeTime);
+
+const { Header, Content } = Layout;
 
 function App() {
 
   useEffect(() => {
     checkOracleSignerBalance();
     checkOperatorBalance();
+    checkOracleSignerSubmition();
   }, [])
 
   const [warns, setWarns] = useState([]);
@@ -52,6 +57,60 @@ function App() {
         }
       }
     }
+  }
+
+  const [submitionCount, setSubmitionCount] = useState({});
+  async function checkOracleSignerSubmition() {
+    const darwiniaChain = getChainById(46);
+    const subAPIMultisig = darwiniaChain.contract.signcribe;
+    const provider = new ethers.JsonRpcProvider(darwiniaChain.endpoint);
+    const finalized = await provider.getBlock("finalized");
+    const logs = await provider.getLogs({
+      fromBlock: finalized.number - 10000,
+      toBlock: finalized.number,
+      address: subAPIMultisig,
+      topics: [ethers.id('SignatureSubmittion(uint256,uint256,address,bytes,bytes)')]
+    })
+    const count = {};
+    const hasCount = {};
+    let maxCount = 1;
+    for (const item of logs) {
+      let signer = item.topics[3].replace(/000000000000000000000000/, "");
+      signer = ethers.getAddress(signer);
+      if (hasCount[item.data]) {
+        continue;
+      } else {
+        hasCount[item.data] = true;
+      }
+      if (count[signer]) {
+        count[signer].count++;
+        count[signer].latest = {
+          block: item.blockNumber,
+          hash: item.blockHash
+        }
+        if (count[signer].count > maxCount) {
+          maxCount = count[signer].count;
+        }
+      } else {
+        count[signer] = { count: 1 };
+      }
+    }
+    count.max = maxCount;
+
+    const blockTime = {};
+    for (const key in count) {
+      if (key === 'max') {
+        continue;
+      }
+      const latestBlock = count[key].latest.block;
+      if (!blockTime[latestBlock]) {
+        const block = await provider.getBlock(count[key].latest.block)
+        blockTime[count[key].latest.block] = block.timestamp;
+      }
+      count[key].latest.timestamp = dayjs.unix(blockTime[latestBlock]).fromNow();
+    }
+
+    setSubmitionCount(count);
   }
 
   const [operatorInfo, setOperatorInfo] = useState({});
@@ -113,7 +172,7 @@ function App() {
       }}
     >
       <div className="App">
-        <Header style={{ color: 'white', textAlign: 'left', backgroundColor: "#9933FA", position: 'fixed', top: '0', left: '0', right: '0', zIndex: '999' }}>
+        <Header style={{ color: 'white', textAlign: 'left', backgroundColor: "#010409", position: 'fixed', top: '0', left: '0', right: '0', zIndex: '999' }}>
           ORMonitor
         </Header>
         {warns && warns.length > 0 ?
@@ -121,17 +180,17 @@ function App() {
             <List dataSource={warns}
               renderItem={(item) => (
                 <List.Item>
-                  {item.warnType == 'operatorBalance' ?
+                  {item.warnType === 'operatorBalance' ?
                     <div>
                       <span style={{ textTransform: 'capitalize' }}>[{item.chain.name}] Balance of {item.operator} operator</span>
-                      <span> <a target='_blank' href={`${item.chain.scan}/address/${item.address}`}>{item.address}</a> </span>
+                      <span> <a target='_blank' href={`${item.chain.scan}/address/${item.address}`} rel="noreferrer">{item.address}</a> </span>
                       <strong style={item.balance > item.chain.operator.warnBalance ? { color: 'green' } : { color: 'red' }}>{item.balance}</strong>
                       <span style={{ color: 'gray' }}> {item.chain.symbol}</span> <span>&lt; {item.chain.operator.warnBalance} {item.chain.symbol}</span>
                     </div> : null}
-                  {item.warnType == 'signerBalance' ?
+                  {item.warnType === 'signerBalance' ?
                     <div>
                       <span style={{ textTransform: 'capitalize' }}>[{item.chain.name}] Balance of SubAPI signer</span>
-                      <span> <a target='_blank' href={`${item.chain.scan}/address/${item.address}`}>{item.address}</a> </span>
+                      <span> <a target='_blank' href={`${item.chain.scan}/address/${item.address}`} rel="noreferrer">{item.address}</a> </span>
                       <strong style={item.balance > item.chain.operator.warnBalance ? { color: 'green' } : { color: 'red' }}>{item.balance}</strong>
                       <span style={{ color: 'gray' }}> {item.chain.symbol}</span> <span>&lt; {item.chain.operator.warnBalance} {item.chain.symbol}</span>
                     </div> : null}
@@ -156,14 +215,14 @@ function App() {
                       </div>
                       <div>
                         <div>
-                          <span><a target='_blank' href={`${item.scan}/address/${item.operator.relayer}`}>{item.operator.relayer}</a> <span style={{ color: 'gray' }}>[Relayer]</span></span>
+                          <span><a target='_blank' href={`${item.scan}/address/${item.operator.relayer}`} rel="noreferrer">{item.operator.relayer}</a> <span style={{ color: 'gray' }}>[Relayer]</span></span>
                           <div>
                             <strong style={operatorInfo[item.id]?.relayer > item.operator.warnBalance ? { color: 'green' } : { color: 'red' }}>{operatorInfo[item.id]?.relayer.toFixed(4)}</strong>
                             <span style={{ color: 'gray' }}> {operatorInfo[item.id]?.symbol}</span>
                           </div>
                         </div>
                         <div>
-                          <span><a target='_blank' href={`${item.scan}/address/${item.operator.oracle}`}>{item.operator.oracle}</a> <span style={{ color: 'gray' }}>[Oracle]</span></span>
+                          <span><a target='_blank' href={`${item.scan}/address/${item.operator.oracle}`} rel="noreferrer">{item.operator.oracle}</a> <span style={{ color: 'gray' }}>[Oracle]</span></span>
                           <div>
                             <strong style={operatorInfo[item.id]?.oracle > item.operator.warnBalance ? { color: 'green' } : { color: 'red' }}>{operatorInfo[item.id]?.oracle.toFixed(4)}</strong>
                             <span style={{ color: 'gray' }}> {operatorInfo[item.id]?.symbol}</span>
@@ -178,7 +237,7 @@ function App() {
           </Space>
           <Space direction="vertical" size={16}>
             <Card
-              title="Balance of SubAPI Signers"
+              title="Oracle Nodes"
               style={{
                 width: 500,
               }}
@@ -191,8 +250,12 @@ function App() {
                         darwinia
                       </div>
                       <div>
-                        <span><a target='_blank' href={`${getChainById(46).scan}/address/${item.address}`}>{item.address}</a></span>
+                        <span><a target='_blank' href={`${getChainById(46).scan}/address/${item.address}`} rel="noreferrer">{item.address}</a></span>
+                        <div>10000 blocks: {submitionCount[item.address]?.count < submitionCount.max ? <strong style={{ color: 'orange' }}>{submitionCount[item.address]?.count}</strong> : <strong style={{ color: 'green' }}>{submitionCount[item.address]?.count}</strong>}/{submitionCount.max}</div>
+                        <div>latest: <a target='_blank' href={`${getChainById(46).scan}/block/${submitionCount[item.address]?.latest.block}?tab=txs`} rel="noreferrer">{submitionCount[item.address]?.latest.block}</a>
+                          <span style={{ backgroundColor: "gray", padding: "3px 6px", color: 'white', borderRadius: '3px', marginLeft: '10px' }}>{submitionCount[item.address]?.latest.timestamp}</span></div>
                         <div>
+                          Balance:&nbsp;
                           <strong style={item.balance > getChainById(46).operator.warnBalance ? { color: 'green' } : { color: 'red' }}>{item.balance}</strong>
                           <span style={{ color: 'gray' }}> {item.symbol}</span>
                         </div>

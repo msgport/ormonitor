@@ -21,8 +21,7 @@ export default fp(async (fastify) => {
         allWarns.push(await checkOracleSignerBalance());
         allWarns.push(await checkOracleSignerSubmition());
         fastify.log.warn(allWarns);
-        // await notify(allWarns, "59154,77764,55181,63157,49833");
-        await notify(allWarns, "59154");
+        await notify(allWarns, "59154,77764,55181,63157,49833");
     }, {
         timezone: "Asia/Shanghai"
     });

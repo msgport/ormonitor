@@ -6,16 +6,23 @@ import { ethers } from 'ethers';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime.js';
 import axios from "axios";
+import qs from "qs";
 
 dayjs.extend(relativeTime);
 
-export default fp(async () => {
+const hasNotified = {};
 
-    cron.schedule('*/1 * * * *', async () => {
+export default fp(async (fastify) => {
+
+    cron.schedule('*/3 * * * *', async () => {
         await healthCheck();
-        await checkOperatorBalance();
-        await checkOracleSignerBalance();
-        await checkOracleSignerSubmition();
+        const allWarns = [];
+        allWarns.push(await checkOperatorBalance());
+        allWarns.push(await checkOracleSignerBalance());
+        allWarns.push(await checkOracleSignerSubmition());
+        fastify.log.warn(allWarns);
+        // await notify(allWarns, "59154,77764,55181,63157,49833");
+        await notify(allWarns, "59154");
     }, {
         timezone: "Asia/Shanghai"
     });
@@ -38,7 +45,8 @@ export default fp(async () => {
                 warns.push(`[${chain.name}] Balance of oracle operator ${chain.operator.oracle} is ${operatorBalance.oracle} ${chain.symbol} less than ${chain.operator.warnBalance}.`)
             }
         }
-        console.log(warns);
+        // console.log(warns);
+        return warns;
     }
 
     async function checkOracleSignerBalance() {
@@ -61,32 +69,46 @@ export default fp(async () => {
                 warns.push(`[${darwiniaChain.name}] Balance of subAPI signer ${obj.address} is ${obj.balance} ${obj.symbol} less than ${darwiniaChain.operator.warnBalance}.`)
             }
         }
-        console.log(warns);
+        // console.log(warns);
+        return warns;
     }
 
     async function checkOracleSignerSubmition() {
         const warns = [];
+        const range = 1000;
         const darwiniaChain = getChainById(46);
         const subAPIMultisig = darwiniaChain.contract.signcribe;
         const provider = new ethers.JsonRpcProvider(darwiniaChain.endpoint);
         const finalized = await provider.getBlock("finalized");
         const logs = await provider.getLogs({
-            fromBlock: finalized.number - 10000,
+            fromBlock: finalized.number - range,
             toBlock: finalized.number,
             address: subAPIMultisig,
             topics: [ethers.id('SignatureSubmittion(uint256,uint256,address,bytes,bytes)')]
         })
         const count = {};
         const hasCount = {};
+        const messages = {};
+        const allSigners = new Set();
         let maxCount = 1;
         for (const item of logs) {
             let signer = item.topics[3].replace(/000000000000000000000000/, "");
             signer = ethers.getAddress(signer);
+            allSigners.add(signer);
+            // filter duplicate signature
             if (hasCount[item.data]) {
                 continue;
             } else {
                 hasCount[item.data] = true;
             }
+            const chainId = parseInt(item.topics[1]);
+            const msgIndex = parseInt(item.topics[2]);
+            if (!messages[`${chainId}-${msgIndex}`]) {
+                messages[`${chainId}-${msgIndex}`] = [{ signer, block: item.blockNumber }];
+            } else {
+                messages[`${chainId}-${msgIndex}`].push({ signer, block: item.blockNumber });
+            }
+
             if (count[signer]) {
                 count[signer].count++;
                 count[signer].latest = {
@@ -103,24 +125,74 @@ export default fp(async () => {
         count.max = maxCount;
 
         const blockTime = {};
-        for (const key in count) {
-            if (key === 'max') {
-                continue;
-            }
+        for (const key in allSigners) {
             const latestBlock = count[key].latest.block;
             if (!blockTime[latestBlock]) {
                 const block = await provider.getBlock(count[key].latest.block)
                 blockTime[count[key].latest.block] = block.timestamp;
             }
-            count[key].latest.timestamp = dayjs.unix(blockTime[latestBlock]).fromNow();
+            count[key].latest.timestamp = dayjs.unix(blockTime[latestBlock]).format('YYYY-MM-DD HH:mm:ss');
             if (count.max - count[key].count > 1) {
-                warns.push(`[SubAPIMultisig] ${key} missed ${count.max - count[key].count} signatures. Block: [${finalized.number}-${finalized.number - 10000}]. Latest: ${count[key].latest.timestamp}`)
+                warns.push(`[SubAPIMultisig] ${key} missed ${count.max - count[key].count} signatures. Latest: ${count[key].latest.timestamp}`)
             }
         }
-        console.log(warns);
+
+        for (const msgIndex in messages) {
+            if (messages[msgIndex].length < allSigners.size) {
+                for (const signer of allSigners.values()) {
+                    let exist = false;
+                    for (const hasSigner of messages[msgIndex]) {
+                        if (hasSigner.signer == signer) {
+                            exist = true;
+                            break;
+                        }
+                    }
+                    if (!exist && finalized.number - messages[msgIndex][0].block > 10) {
+                        warns.push(`[SubAPIMultisig] ${signer} missed ${msgIndex} signature.`)
+                    }
+                }
+            }
+        }
+        // console.log(warns);
+        return warns;
     }
 
     async function healthCheck() {
-       await  axios.get("https://hc-ping.com/5B4xQyjO7c1ReOiZiaS4yQ/ormonitor");
+        await axios.get("https://hc-ping.com/5B4xQyjO7c1ReOiZiaS4yQ/ormonitor");
+    }
+
+    async function notify(warns, channel) {
+        const toNotify = [];
+        for (let warnGroup of warns) {
+            for (const warn of warnGroup) {
+                if (!hasNotified[warn]) {
+                    toNotify.push(warn);
+                    hasNotified[warn] = true;
+                }
+            }
+        }
+        if(toNotify.length == 0) {
+            return;
+        }
+        const data = qs.stringify({
+            "title": "ORMonitor",
+            "content": toNotify.join("<br/>"),
+            "channel": channel,
+        });
+        console.log(data);
+        const config = {
+            "method": "post",
+            "url": "https://api.anpush.com/push/RFLK5BMRC6VN4C13PXWOO2QJ1ANSYI",
+            "headers": {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            data: data,
+        }
+        axios(config)
+            .then(function (resp) {
+                fastify.log.info(JSON.stringify(resp.data))
+            }).catch(function (error) {
+                fastify.log.error(error);
+            })
     }
 })

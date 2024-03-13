@@ -66,11 +66,12 @@ function App() {
     const provider = new ethers.JsonRpcProvider(darwiniaChain.endpoint);
     const finalized = await provider.getBlock("finalized");
     const logs = await provider.getLogs({
-      fromBlock: finalized.number - 10000,
+      fromBlock: finalized.number - 1000,
       toBlock: finalized.number,
       address: subAPIMultisig,
       topics: [ethers.id('SignatureSubmittion(uint256,uint256,address,bytes,bytes)')]
     })
+    console.log(logs);
     const count = {};
     const hasCount = {};
     let maxCount = 1;
@@ -251,7 +252,7 @@ function App() {
                       </div>
                       <div>
                         <span><a target='_blank' href={`${getChainById(46).scan}/address/${item.address}`} rel="noreferrer">{item.address}</a></span>
-                        <div>10000 blocks: {submitionCount[item.address]?.count < submitionCount.max ? <strong style={{ color: 'orange' }}>{submitionCount[item.address]?.count}</strong> : <strong style={{ color: 'green' }}>{submitionCount[item.address]?.count}</strong>}/{submitionCount.max}</div>
+                        <div>1000 blocks: {submitionCount[item.address]?.count < submitionCount.max ? <strong style={{ color: 'orange' }}>{submitionCount[item.address]?.count}</strong> : <strong style={{ color: 'green' }}>{submitionCount[item.address]?.count}</strong>}/{submitionCount.max}</div>
                         <div>latest: <a target='_blank' href={`${getChainById(46).scan}/block/${submitionCount[item.address]?.latest.block}?tab=txs`} rel="noreferrer">{submitionCount[item.address]?.latest.block}</a>
                           <span style={{ backgroundColor: "gray", padding: "3px 6px", color: 'white', borderRadius: '3px', marginLeft: '10px' }}>{submitionCount[item.address]?.latest.timestamp}</span></div>
                         <div>

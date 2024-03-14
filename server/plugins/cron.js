@@ -177,7 +177,7 @@ export default fp(async (fastify) => {
         }
         const data = qs.stringify({
             "title": "ORMonitor",
-            "content": toNotify.join("<br/>"),
+            "content": toNotify.join("<br/>\r\n"),
             "channel": channel,
         });
         console.log(data);

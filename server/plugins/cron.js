@@ -146,8 +146,10 @@ export default fp(async (fastify) => {
                             break;
                         }
                     }
-                    if (!exist && finalized.number - messages[msgIndex][0].block > 10) {
-                        warns.push(`[SubAPIMultisig] ${signer} missed ${msgIndex} signature.`)
+                    const gap = finalized.number - messages[msgIndex][0].block;
+                    if (!exist && gap > 10 && gap < 500) {
+                        fastify.log.warn(`[SubAPIMultisig] ${signer} missed ${msgIndex} signature. gap: ${gap}`);
+                        warns.push(`[SubAPIMultisig] ${signer} missed ${msgIndex} signature.`);
                     }
                 }
             }

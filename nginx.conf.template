@@ -28,25 +28,7 @@ http {
 
     server {
         listen       80;
-        server_name  ${DOMAIN};
-
-        return 301 https://$host$request_uri;
-    }
-
-    server {
-        listen       443 ssl;
-        server_name  ${DOMAIN};
-
-        ssl_certificate     /etc/nginx/${DOMAIN}.pem;
-        ssl_certificate_key /etc/nginx/${DOMAIN}.key;
-
-        ssl_session_cache shared:SSL:1m;
-        ssl_session_timeout 5m;
-
-        ssl_protocols TLSv1.1 TLSv1.2 TLSv1.3;
-        ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;
-
-        ssl_prefer_server_ciphers on;
+        #server_name  ormonitor.darwinia.network;
 
         location / {
             root   /usr/share/nginx/html;
@@ -69,7 +51,7 @@ http {
 
             proxy_pass http://backend/api;
 
-            add_header 'Access-Control-Allow-Origin' '${DOMAIN}';
+            add_header 'Access-Control-Allow-Origin' 'ormonitor.darwinia.network';
             add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
             add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
             add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';

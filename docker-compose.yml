@@ -13,15 +13,12 @@ services:
         max-file: "10"
     environment:
       - LISTEN=0.0.0.0
-      - LOG_LEVEL=${LOG_LEVEL}
       - TZ=Asia/Shanghai
   
   nginx:
     build:
       context: .
       dockerfile: Dockerfile.nginx
-      args:
-        DOMAIN: "ormonitor.darwinia.network"
     restart: always
     logging:
       driver: json-file

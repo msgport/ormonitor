@@ -1,0 +1,13 @@
+FROM node:18-alpine
+
+WORKDIR /server
+
+COPY ./server/package*.json ./
+
+RUN yarn install
+
+COPY ./server .
+
+EXPOSE 8000
+
+CMD ["node", "server.js"]

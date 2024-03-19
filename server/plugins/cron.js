@@ -20,6 +20,7 @@ export default fp(async (fastify) => {
         allWarns.push(await checkOperatorBalance());
         allWarns.push(await checkOracleSignerBalance());
         allWarns.push(await checkOracleSignerSubmition());
+        allWarns.push(await checkTimeoutRelay());
         fastify.log.warn(allWarns);
         await notify(allWarns, "59154,77764,55181,63157,49833");
     }, {
@@ -158,6 +159,21 @@ export default fp(async (fastify) => {
         return warns;
     }
 
+    async function checkTimeoutRelay() {
+        const warns = [];
+        const result = await axios.get("https://msgscan.darwinia.network/messages/timespent/gt/30/minutes.json?status=accepted,root_ready");
+        const data = result.data;
+        for (let i = 0; i < data.messages.length; i++) {
+            // console.log(data.messages[i]);
+            const message = data.messages[i];
+            const diffHour = (new Date().getTime()/1000 - dayjs(data.messages[i].block_timestamp).unix())/3600;
+            if(diffHour < 24) {
+                warns.push(`[TimeOut] ${message.from_chain_id} > ${message.to_chain_id} index: ${message.index}, msgHash: ${message.msg_hash}, blockTimestamp: ${message.block_timestamp}`);
+            }
+        }
+        return warns;
+    }
+
     async function healthCheck() {
         await axios.get("https://hc-ping.com/5B4xQyjO7c1ReOiZiaS4yQ/ormonitor");
     }
@@ -172,7 +188,7 @@ export default fp(async (fastify) => {
                 }
             }
         }
-        if(toNotify.length == 0) {
+        if (toNotify.length == 0) {
             return;
         }
         const data = qs.stringify({

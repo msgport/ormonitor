@@ -161,15 +161,20 @@ export default fp(async (fastify) => {
 
     async function checkTimeoutRelay() {
         const warns = [];
-        const result = await axios.get("https://msgscan.darwinia.network/messages/timespent/gt/30/minutes.json?status=accepted,root_ready");
-        const data = result.data;
-        for (let i = 0; i < data.messages.length; i++) {
-            // console.log(data.messages[i]);
-            const message = data.messages[i];
-            const diffHour = (new Date().getTime()/1000 - dayjs(data.messages[i].block_timestamp).unix())/3600;
-            if(diffHour < 24) {
-                warns.push(`[TimeOut] ${message.from_chain_id} > ${message.to_chain_id} index: ${message.index}, msgHash: ${message.msg_hash}, blockTimestamp: ${message.block_timestamp}`);
+        try {
+            const result = await axios.get("https://scan.msgport.xyz/messages/timespent/gt/30/minutes.json?status=accepted,root_ready", { timeout: 10000 });
+            const data = result.data;
+            for (let i = 0; i < data.messages.length; i++) {
+                // console.log(data.messages[i]);
+                const message = data.messages[i];
+                const diffHour = (new Date().getTime() / 1000 - dayjs(data.messages[i].block_timestamp).unix()) / 3600;
+                if (diffHour < 24) {
+                    warns.push(`[TimeOut] ${message.from_chain_id} > ${message.to_chain_id} index: ${message.index}, msgHash: ${message.msg_hash}, blockTimestamp: ${message.block_timestamp}`);
+                }
             }
+        } catch (e) {
+            fastify.log.error(e);
+            warns.push(e);
         }
         return warns;
     }

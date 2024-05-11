@@ -19,7 +19,7 @@ export default fp(async (fastify) => {
         const allWarns = [];
         allWarns.push(await checkOperatorBalance());
         allWarns.push(await checkOracleSignerBalance());
-        allWarns.push(await checkOracleSignerSubmition());
+        // allWarns.push(await checkOracleSignerSubmition());
         allWarns.push(await checkTimeoutRelay());
         fastify.log.warn(allWarns);
         await notify(allWarns, "59154,77764,55181,63157,49833");

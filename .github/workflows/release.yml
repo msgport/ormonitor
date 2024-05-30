@@ -55,12 +55,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Deploy ormonitor
+      - name: Deploy railway
         uses: fewensa/action-railway-redeploy@main
         if: startsWith(github.ref, 'refs/tags/v')
         with:
           railway_token: ${{ secrets.RAILWAY_TOKEN }}
           environment_id: "4dedc55b-f25a-4ebf-9af6-58bc04c48bce"
           service_id: "4564b9b1-29dc-4526-bc7d-b5f3c0606a14"
+
 
 

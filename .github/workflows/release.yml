@@ -55,36 +55,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # - name: Deploy ormonitor
-      #   uses: fewensa/action-railway-redeploy@main
-      #   if: startsWith(github.ref, 'refs/tags/v')
-      #   with:
-      #     railway_token: ${{ secrets.RAILWAY_TOKEN }}
-      #     environment_id: "4dedc55b-f25a-4ebf-9af6-58bc04c48bce"
-      #     service_id: "4564b9b1-29dc-4526-bc7d-b5f3c0606a14"
-
-      - name: Test redeploy
-        run: |
-          INPUT_ENVIRONMENT_ID="4dedc55b-f25a-4ebf-9af6-58bc04c48bce"
-          INPUT_SERVICE_ID="4564b9b1-29dc-4526-bc7d-b5f3c0606a14"
-          WRITE_FILE_PATH=__railway_redeploy__.json 
-
-          curl -X POST \
-            -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
-            -H 'Content-Type: application/json' \
-            'https://backboard.railway.app/graphql/v2' \
-            -d '{"query":"mutation serviceInstanceDeploy($environmentId: String!, $serviceId: String!) {\n  serviceInstanceDeploy(environmentId: $environmentId, serviceId: $serviceId)\n}","variables":{"environmentId":"'${INPUT_ENVIRONMENT_ID}'","serviceId":"'${INPUT_SERVICE_ID}'"}}' \
-            | tee ${WRITE_FILE_PATH}
-
-          MESSAGE=$(cat ${WRITE_FILE_PATH} | jq '.errors[]?.message')
-          rm -rf ${WRITE_FILE_PATH}
-
-          echo $MESSAGE
-
-          if [ -n "${MESSAGE}" ]; then
-            exit 1
-          fi
-
+      - name: Deploy railway
+        uses: fewensa/action-railway-redeploy@main
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          railway_token: ${{ secrets.RAILWAY_TOKEN }}
+          environment_id: "4dedc55b-f25a-4ebf-9af6-58bc04c48bce"
+          service_id: "4564b9b1-29dc-4526-bc7d-b5f3c0606a14"
 
 
 

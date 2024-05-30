@@ -34,7 +34,9 @@ jobs:
         with:
           push: true
           context: server
-          tags: ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}:sha-${{ env.SHA }}
+          tags: |
+            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}:sha-${{ env.SHA }}
+            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}:staging
 
       - name: Publish docker image with tag
         uses: docker/build-push-action@v3
@@ -42,7 +44,9 @@ jobs:
         with:
           push: true
           context: server
-          tags: ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}:${{ env.GIT_TAG_NAME }}
+          tags: |
+            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}:${{ env.GIT_TAG_NAME }}
+            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}:latest
 
   deploy-railway:
     name: Deploy railway

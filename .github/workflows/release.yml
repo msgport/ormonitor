@@ -70,7 +70,7 @@ jobs:
           WRITE_FILE_PATH=__railway_redeploy__.json 
 
           curl -X POST \
-            -H "Authorization: Bearer $${{ secrets.RAILWAY_TOKEN }}" \
+            -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
             -H 'Content-Type: application/json' \
             'https://backboard.railway.app/graphql/v2' \
             -d '{"query":"mutation serviceInstanceDeploy($environmentId: String!, $serviceId: String!) {\n  serviceInstanceDeploy(environmentId: $environmentId, serviceId: $serviceId)\n}","variables":{"environmentId":"'${INPUT_ENVIRONMENT_ID}'","serviceId":"'${INPUT_SERVICE_ID}'"}}' \

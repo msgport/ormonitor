@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_SERVER = "http://localhost:8000/api"
+const API_SERVER = "https://ormonitor.msgport.xyz/api"
 
 class Requests {
     constructor() {

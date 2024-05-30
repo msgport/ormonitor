@@ -66,10 +66,10 @@ function App() {
     const darwiniaChain = getChainById(46);
     const subAPIMultisig = darwiniaChain.contract.signcribe;
     const provider = new ethers.JsonRpcProvider(darwiniaChain.endpoint);
-    const finalized = await provider.getBlock("finalized");
-    console.log("finalized: ", finalized);
+    const finalized = await provider.getBlock("latest");
+    console.log("latest: ", finalized);
     const logs = await provider.getLogs({
-      fromBlock: finalized.number - 500,
+      fromBlock: finalized.number - 1000,
       toBlock: finalized.number,
       address: subAPIMultisig,
       topics: [ethers.id('SignatureSubmittion(uint256,address,address,uint256,bytes,bytes)')]

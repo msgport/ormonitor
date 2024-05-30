@@ -197,7 +197,7 @@ export default fp(async (fastify) => {
             }
         } catch (e) {
             fastify.log.error(e);
-            warns.push(e);
+            warns.push(e + Date.now());
         }
         return warns;
     }

@@ -34,7 +34,6 @@ jobs:
         with:
           push: true
           context: server
-          file: server/Dockerfile
           tags: ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}:sha-${{ env.SHA }}
 
       - name: Publish docker image with tag
@@ -43,7 +42,6 @@ jobs:
         with:
           push: true
           context: server
-          file: server/Dockerfile
           tags: ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}:${{ env.GIT_TAG_NAME }}
 
   deploy-railway:

@@ -81,6 +81,7 @@ function App() {
     for (const item of logs) {
       let signer = item.topics[3].replace(/000000000000000000000000/, "");
       signer = ethers.getAddress(signer);
+      console.log("### logs signer", signer, item);
       if (hasCount[item.data]) {
         continue;
       } else {
@@ -97,21 +98,33 @@ function App() {
         }
       } else {
         count[signer] = { count: 1 };
+        count[signer].latest = {
+          block: item.blockNumber,
+          hash: item.blockHash
+        }
       }
     }
     count.max = maxCount;
 
+    console.log("count####", count);
     const blockTime = {};
     for (const key in count) {
       if (key === 'max') {
         continue;
       }
-      const latestBlock = count[key].latest.block;
-      if (!blockTime[latestBlock]) {
-        const block = await provider.getBlock(count[key].latest.block)
-        blockTime[count[key].latest.block] = block.timestamp;
+      const latestBlock = count[key].latest?.block;
+      if(latestBlock) {
+        if (!blockTime[latestBlock]) {
+          const block = await provider.getBlock(count[key].latest.block)
+          blockTime[count[key].latest.block] = block.timestamp;
+        }
+        count[key].latest.timestamp = dayjs.unix(blockTime[latestBlock]).fromNow();
+      } else {
+        count[key].latest = {
+          timestamp: "N years ago"
+        };
       }
-      count[key].latest.timestamp = dayjs.unix(blockTime[latestBlock]).fromNow();
+     
     }
 
     setSubmitionCount(count);

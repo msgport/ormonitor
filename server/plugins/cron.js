@@ -1,12 +1,13 @@
 import fp from 'fastify-plugin'
 import cron from 'node-cron'
 import { getAllChains, getChainById } from '../config/chains.js';
-import { unitToEth } from '../routes/balance/helper.js';
+import { unitToEth, unitToRtx } from '../routes/balance/helper.js';
 import { ethers } from 'ethers';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime.js';
 import axios from "axios";
 import qs from "qs";
+import requests from '../utils/requests.js';
 
 dayjs.extend(relativeTime);
 
@@ -32,12 +33,32 @@ export default fp(async (fastify) => {
         const allChains = getAllChains();
         for (const chain of allChains) {
             const operatorBalance = {};
-            const provider = new ethers.JsonRpcProvider(chain.endpoint);
-            let relayerBalance = await provider.getBalance(chain.operator.relayer);
-            operatorBalance.relayer = unitToEth(relayerBalance);
-            let oracleBalance = await provider.getBalance(chain.operator.oracle);
-            operatorBalance.oracle = unitToEth(oracleBalance);
-            operatorBalance.symbol = chain.symbol;
+
+            if (!chain.name.includes("tron")) {
+                const provider = new ethers.JsonRpcProvider(chain.endpoint);
+                let relayerBalance = await provider.getBalance(chain.operator.relayer);
+                operatorBalance.relayer = unitToEth(relayerBalance);
+                let oracleBalance = await provider.getBalance(chain.operator.oracle);
+                operatorBalance.oracle = unitToEth(oracleBalance);
+                operatorBalance.symbol = chain.symbol;
+            } else {
+                const relayerBalance = Number((await requests.post(chain.endpoint, {
+                    "method": "eth_getBalance",
+                    "params": [chain.operator.relayer, "latest"],
+                    "id": "1",
+                    "jsonrpc": "2.0"
+                })).result);
+                operatorBalance.relayer = unitToRtx(relayerBalance);
+
+                const oracleBalance = Number((await requests.post(chain.endpoint, {
+                    "method": "eth_getBalance",
+                    "params": [chain.operator.oracle, "latest"],
+                    "id": "1",
+                    "jsonrpc": "2.0"
+                })).result);
+                operatorBalance.oracle = unitToRtx(oracleBalance);
+            }
+
             if (operatorBalance.relayer < chain.operator.warnBalance) {
                 warns.push(`[${chain.name}] Balance of relayer operator ${chain.operator.relayer} is ${operatorBalance.relayer} ${chain.symbol} less than ${chain.operator.warnBalance}.`)
             }
@@ -84,7 +105,7 @@ export default fp(async (fastify) => {
             fromBlock: finalized.number - range,
             toBlock: finalized.number,
             address: subAPIMultisig,
-            topics: [ethers.id('SignatureSubmittion(uint256,uint256,address,bytes,bytes)')]
+            topics: [ethers.id('SignatureSubmittion(uint256,address,address,uint256,bytes,bytes)')]
         })
         const count = {};
         const hasCount = {};

@@ -3,9 +3,10 @@ import './App.css';
 import { React, useState, useEffect } from 'react';
 import { getAllChains, getChainById } from './utils/chains';
 import { Layout, Card, Space, List, ConfigProvider } from 'antd';
-import { unitToEth } from './utils/ethersHelper';
+import { unitToEth, unitToRtx } from './utils/ethersHelper';
 import dayjs from "dayjs";
 import relativeTime from 'dayjs/plugin/relativeTime';
+import requests from './utils/requests';
 
 dayjs.extend(relativeTime);
 
@@ -61,15 +62,17 @@ function App() {
 
   const [submitionCount, setSubmitionCount] = useState({});
   async function checkOracleSignerSubmition() {
+    console.log("===============checkOracleSignerSubmition");
     const darwiniaChain = getChainById(46);
     const subAPIMultisig = darwiniaChain.contract.signcribe;
     const provider = new ethers.JsonRpcProvider(darwiniaChain.endpoint);
     const finalized = await provider.getBlock("finalized");
+    console.log("finalized: ", finalized);
     const logs = await provider.getLogs({
-      fromBlock: finalized.number - 1000,
+      fromBlock: finalized.number - 500,
       toBlock: finalized.number,
       address: subAPIMultisig,
-      topics: [ethers.id('SignatureSubmittion(uint256,uint256,address,bytes,bytes)')]
+      topics: [ethers.id('SignatureSubmittion(uint256,address,address,uint256,bytes,bytes)')]
     })
     console.log(logs);
     const count = {};
@@ -132,12 +135,33 @@ function App() {
         continue;
       }
       const operatorBalance = {};
-      const provider = new ethers.JsonRpcProvider(chain.endpoint);
-      let relayerBalance = await provider.getBalance(chain.operator.relayer);
-      operatorBalance.relayer = unitToEth(relayerBalance);
-      let oracleBalance = await provider.getBalance(chain.operator.oracle);
-      operatorBalance.oracle = unitToEth(oracleBalance);
-      operatorBalance.symbol = chain.symbol;
+
+      if (!chain.name.includes("tron")) {
+        const provider = new ethers.JsonRpcProvider(chain.endpoint);
+        let relayerBalance = await provider.getBalance(chain.operator.relayer);
+        operatorBalance.relayer = unitToEth(relayerBalance);
+        let oracleBalance = await provider.getBalance(chain.operator.oracle);
+        operatorBalance.oracle = unitToEth(oracleBalance);
+        operatorBalance.symbol = chain.symbol;
+      } else {
+        const relayerBalance = Number((await requests.post(chain.endpoint, {
+          "method": "eth_getBalance",
+          "params": [chain.operator.relayer, "latest"],
+          "id": "1",
+          "jsonrpc": "2.0"
+        })).result);
+        operatorBalance.relayer = unitToRtx(relayerBalance);
+
+        const oracleBalance = Number((await requests.post(chain.endpoint, {
+          "method": "eth_getBalance",
+          "params": [chain.operator.oracle, "latest"],
+          "id": "1",
+          "jsonrpc": "2.0"
+        })).result);
+        operatorBalance.oracle = unitToRtx(oracleBalance);
+      }
+
+
       operatorInfo[chain.id] = operatorBalance;
       console.log(operatorInfo);
       setOperatorInfo({ ...operatorInfo });

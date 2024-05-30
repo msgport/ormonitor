@@ -65,9 +65,9 @@ jobs:
 
       - name: Test redeploy
         run: |
-        INPUT_ENVIRONMENT_ID="4dedc55b-f25a-4ebf-9af6-58bc04c48bce"
-        INPUT_SERVICE_ID="4564b9b1-29dc-4526-bc7d-b5f3c0606a14"
-        WRITE_FILE_PATH=__railway_redeploy__.json 
+          INPUT_ENVIRONMENT_ID="4dedc55b-f25a-4ebf-9af6-58bc04c48bce"
+          INPUT_SERVICE_ID="4564b9b1-29dc-4526-bc7d-b5f3c0606a14"
+          WRITE_FILE_PATH=__railway_redeploy__.json 
 
           curl -X POST \
             -H "Authorization: Bearer $${{ secrets.RAILWAY_TOKEN }}" \

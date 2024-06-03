@@ -5,9 +5,9 @@ const Chains = [
     "endpoint": "https://crab-rpc.darwinia.network",
     "contract": {
       "signcribe": "0x57aa601a0377f5ab313c5a955ee874f5d495fc92",
-      "relayer": "0xaC2b224c2E1eD2E8663097a361A05a72d6671C7D",
-      "ormp": "0xA72d283015c01807bc0788Bf22C1A774bDbFC8fA",
-      "oracle": "0x3f938756ceFa33665719Eb528E581FF3f460b7C6",
+      "relayer": "0x114890eB7386F94eae410186F20968bFAf66142a",
+      "ormp": "0x13b2211a7cA45Db2808F6dB05557ce5347e3634e",
+      "oracle": "0xBE01B76AB454aE2497aE43168b1F70C92Ac1C726",
       "multisig": "0x22117Db68370590c1031f52a6D1aDE3DCe0cCf9a"
     },
     "operator": {
@@ -24,9 +24,9 @@ const Chains = [
     "endpoint": "https://rpc.darwinia.network",
     "contract": {
       "signcribe": "0x57aa601a0377f5ab313c5a955ee874f5d495fc92",
-      "relayer": "0xaC2b224c2E1eD2E8663097a361A05a72d6671C7D",
-      "ormp": "0xA72d283015c01807bc0788Bf22C1A774bDbFC8fA",
-      "oracle": "0x3f938756ceFa33665719Eb528E581FF3f460b7C6",
+      "relayer": "0x114890eB7386F94eae410186F20968bFAf66142a",
+      "ormp": "0x13b2211a7cA45Db2808F6dB05557ce5347e3634e",
+      "oracle": "0xBE01B76AB454aE2497aE43168b1F70C92Ac1C726",
       "multisig": "0x22117Db68370590c1031f52a6D1aDE3DCe0cCf9a"
     },
     "operator": {
@@ -43,9 +43,9 @@ const Chains = [
     "endpoint": "https://arbitrum-one.publicnode.com",
     "contract": {
       "signcribe": "0x57aa601a0377f5ab313c5a955ee874f5d495fc92",
-      "relayer": "0xaC2b224c2E1eD2E8663097a361A05a72d6671C7D",
-      "ormp": "0xA72d283015c01807bc0788Bf22C1A774bDbFC8fA",
-      "oracle": "0x3f938756ceFa33665719Eb528E581FF3f460b7C6",
+      "relayer": "0x114890eB7386F94eae410186F20968bFAf66142a",
+      "ormp": "0x13b2211a7cA45Db2808F6dB05557ce5347e3634e",
+      "oracle": "0xBE01B76AB454aE2497aE43168b1F70C92Ac1C726",
       "multisig": "0x22117Db68370590c1031f52a6D1aDE3DCe0cCf9a"
     },
     "operator": {
@@ -62,9 +62,9 @@ const Chains = [
     "endpoint": "https://ethereum.publicnode.com",
     "contract": {
       "signcribe": "0x57aa601a0377f5ab313c5a955ee874f5d495fc92",
-      "relayer": "0xaC2b224c2E1eD2E8663097a361A05a72d6671C7D",
-      "ormp": "0xA72d283015c01807bc0788Bf22C1A774bDbFC8fA",
-      "oracle": "0x3f938756ceFa33665719Eb528E581FF3f460b7C6",
+      "relayer": "0x114890eB7386F94eae410186F20968bFAf66142a",
+      "ormp": "0x13b2211a7cA45Db2808F6dB05557ce5347e3634e",
+      "oracle": "0xBE01B76AB454aE2497aE43168b1F70C92Ac1C726",
       "multisig": "0x22117Db68370590c1031f52a6D1aDE3DCe0cCf9a"
     },
     "operator": {
@@ -81,9 +81,9 @@ const Chains = [
     "endpoint": "https://polygon-bor-rpc.publicnode.com",
     "contract": {
       "signcribe": "0x57aa601a0377f5ab313c5a955ee874f5d495fc92",
-      "relayer": "0xaC2b224c2E1eD2E8663097a361A05a72d6671C7D",
-      "ormp": "0xA72d283015c01807bc0788Bf22C1A774bDbFC8fA",
-      "oracle": "0x3f938756ceFa33665719Eb528E581FF3f460b7C6",
+      "relayer": "0x114890eB7386F94eae410186F20968bFAf66142a",
+      "ormp": "0x13b2211a7cA45Db2808F6dB05557ce5347e3634e",
+      "oracle": "0xBE01B76AB454aE2497aE43168b1F70C92Ac1C726",
       "multisig": "0x22117Db68370590c1031f52a6D1aDE3DCe0cCf9a"
     },
     "operator": {
@@ -100,9 +100,9 @@ const Chains = [
     "endpoint": "https://rpc.blast.io",
     "contract": {
       "signcribe": "0x57aa601a0377f5ab313c5a955ee874f5d495fc92",
-      "relayer": "0xaC2b224c2E1eD2E8663097a361A05a72d6671C7D",
-      "ormp": "0xA72d283015c01807bc0788Bf22C1A774bDbFC8fA",
-      "oracle": "0x3f938756ceFa33665719Eb528E581FF3f460b7C6",
+      "relayer": "0x114890eB7386F94eae410186F20968bFAf66142a",
+      "ormp": "0x13b2211a7cA45Db2808F6dB05557ce5347e3634e",
+      "oracle": "0xBE01B76AB454aE2497aE43168b1F70C92Ac1C726",
       "multisig": "0x22117Db68370590c1031f52a6D1aDE3DCe0cCf9a"
     },
     "operator": {
@@ -119,9 +119,9 @@ const Chains = [
     "endpoint": "https://moonbeam-rpc.dwellir.com",
     "contract": {
       "signcribe": "0x57aa601a0377f5ab313c5a955ee874f5d495fc92",
-      "relayer": "0xaC2b224c2E1eD2E8663097a361A05a72d6671C7D",
-      "ormp": "0xA72d283015c01807bc0788Bf22C1A774bDbFC8fA",
-      "oracle": "0x3f938756ceFa33665719Eb528E581FF3f460b7C6",
+      "relayer": "0x114890eB7386F94eae410186F20968bFAf66142a",
+      "ormp": "0x13b2211a7cA45Db2808F6dB05557ce5347e3634e",
+      "oracle": "0xBE01B76AB454aE2497aE43168b1F70C92Ac1C726",
       "multisig": "0x22117Db68370590c1031f52a6D1aDE3DCe0cCf9a"
     },
     "operator": {
@@ -138,9 +138,9 @@ const Chains = [
     "endpoint": "https://api.trongrid.io/jsonrpc",
     "contract": {
       "signcribe": "0x57aa601a0377f5ab313c5a955ee874f5d495fc92",
-      "relayer": "0xDD9622309aa2798D74CD39C772D289dfe3EEdaD5",
-      "ormp": "0x152c6DdDD0A4cfD817af7Cf4cf5491D4AC44e886",
-      "oracle": "0xf7A4217c2c372E50c19fdF68D86b3C7E493d2d21",
+      "relayer": "0xB607762F43F1A72593715497d4A7dDD754c62a6A",
+      "ormp": "0x5C5c383FEbE62F377F8c0eA1de97F2a2Ba102e98",
+      "oracle": "0xD250c974cbe8eEa25Ab75c0Fc9a18D612Ae4b043",
       "multisig": "0x7D2B4704d72A41817b06df3Bc813161A13550006"
     },
     "operator": {
@@ -152,28 +152,28 @@ const Chains = [
     "scan": "https://tronscan.org/#",
   }
 ]
-  
-  function getChainById(id) {
-    for (const item of Chains) {
-      if(item.id === id) {
-        return item;
-      }
+
+function getChainById(id) {
+  for (const item of Chains) {
+    if (item.id === id) {
+      return item;
     }
-    return null;
   }
-  
-  function getChainByName(name) {
-    for (const item of Chains) {
-      if(item.name === name) {
-        return item;
-      }
+  return null;
+}
+
+function getChainByName(name) {
+  for (const item of Chains) {
+    if (item.name === name) {
+      return item;
     }
-    return null;
   }
-  
-  
-  function getAllChains() {
-    return Chains;
-  }
-  
-  export { getAllChains, getChainById, getChainByName };
+  return null;
+}
+
+
+function getAllChains() {
+  return Chains;
+}
+
+export { getAllChains, getChainById, getChainByName };

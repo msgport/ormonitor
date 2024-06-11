@@ -185,14 +185,14 @@ export default fp(async (fastify) => {
     async function checkTimeoutRelay() {
         const warns = [];
         try {
-            const result = await axios.get("https://scan.msgport.xyz/messages/timespent/gt/30/minutes.json?status=accepted,root_ready", { timeout: 10000 });
+            const result = await axios.get("https://scan-api.msgport.xyz/messages/timespent/gt/30/minutes.json?status=inflight", { timeout: 10000 });
             const data = result.data;
-            for (let i = 0; i < data.messages.length; i++) {
+            for (let i = 0; i < data.length; i++) {
                 // console.log(data.messages[i]);
-                const message = data.messages[i];
-                const diffHour = (new Date().getTime() / 1000 - dayjs(data.messages[i].block_timestamp).unix()) / 3600;
+                const message = data[i];
+                const diffHour = (new Date().getTime() / 1000 - dayjs(data[i].sourceBlockTimestamp).unix()) / 3600;
                 if (diffHour < 24) {
-                    warns.push(`[TimeOut] ${message.from_chain_id} > ${message.to_chain_id} index: ${message.index}, msgHash: ${message.msg_hash}, blockTimestamp: ${message.block_timestamp}`);
+                    warns.push(`[TimeOut] ${message.sourceChainId} > ${message.targetChainId} id: ${message.id}, sourceTxHash: ${message.sourceTransactionHash}, blockTimestamp: ${message.sourceBlockTimestamp}`);
                 }
             }
         } catch (e) {

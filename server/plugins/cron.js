@@ -223,7 +223,7 @@ export default fp(async (fastify) => {
         try {
             const result = await axios.get("https://ormponder.msgport.xyz/", { timeout: 3000 });
             const data = result.data;
-            console.log(data);
+            // console.log(data);
             if (!data.includes("Ponder Playground")) {
                 warns.push("Msgport Ponder error" + ` time: ${Date.now()}`);
             }

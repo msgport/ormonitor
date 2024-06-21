@@ -220,16 +220,28 @@ export default fp(async (fastify) => {
 
     async function checkPonder() {
         const warns = [];
-        try {
-            const result = await axios.get("https://ormponder.msgport.xyz/", { timeout: 3000 });
-            const data = result.data;
-            // console.log(data);
-            if (!data.includes("Ponder Playground")) {
-                warns.push("Msgport Ponder error" + ` time: ${Date.now()}`);
+        const ponders = [
+            'https://ormponder.vercel.app/darwinia',
+            'https://ormponder.vercel.app/crab',
+            'https://ormponder.vercel.app/arbitrum',
+            'https://ormponder.vercel.app/ethereum',
+            'https://ormponder.vercel.app/moonbeam',
+            'https://ormponder.vercel.app/polygon',
+            'https://ormponder.vercel.app/tron',
+            'https://ormponder.vercel.app/blast',
+        ]
+        for (const _url of ponders) {
+            try {
+                const result = await axios.get(_url, { timeout: 3000 });
+                const data = result.data;
+                // console.log(data);
+                if (!data.includes("Ponder Playground")) {
+                    warns.push(_url + ` time: ${Date.now()}`);
+                }
+            } catch (e) {
+                fastify.log.error(e);
+                warns.push(_url + ", " + e + ", " + Date.now());
             }
-        } catch (e) {
-            fastify.log.error(e);
-            warns.push("Msgport Ponder error" + e + ", " + Date.now());
         }
         return warns;
     }

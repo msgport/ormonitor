@@ -89,7 +89,8 @@ const Chains = [
     "operator": {
       "oracle": "0x178E699c9a6bB2Cd624557Fbd85ed219e6faBa77",
       "relayer": "0x912D7601569cBc2DF8A7f0aaE50BFd18e8C64d05",
-      "warnBalance": 0.1,
+      // "warnBalance": 0.1,
+      "warnBalance": 0,
     },
     "symbol": "MATIC",
     "scan": "https://polygonscan.com",

@@ -21,7 +21,7 @@ export default fp(async (fastify) => {
         allWarns.push(await checkOperatorBalance());
         allWarns.push(await checkOracleSignerBalance());
         // allWarns.push(await checkOracleSignerSubmition());
-        // allWarns.push(await checkTimeoutRelay());
+        allWarns.push(await checkTimeoutRelay());
         allWarns.push(await checkMsgportAPI());
         allWarns.push(await checkPonder());
         fastify.log.warn(allWarns);
@@ -31,48 +31,55 @@ export default fp(async (fastify) => {
     });
 
     async function checkOperatorBalance() {
+        fastify.log.info("==> checkOperatorBalance")
         const warns = [];
-        const allChains = getAllChains();
-        for (const chain of allChains) {
-            const operatorBalance = {};
+        try {
+            const allChains = getAllChains();
+            for (const chain of allChains) {
+                const operatorBalance = {};
 
-            if (!chain.name.includes("tron")) {
-                const provider = new ethers.JsonRpcProvider(chain.endpoint);
-                let relayerBalance = await provider.getBalance(chain.operator.relayer);
-                operatorBalance.relayer = unitToEth(relayerBalance);
-                let oracleBalance = await provider.getBalance(chain.operator.oracle);
-                operatorBalance.oracle = unitToEth(oracleBalance);
-                operatorBalance.symbol = chain.symbol;
-            } else {
-                const relayerBalance = Number((await requests.post(chain.endpoint, {
-                    "method": "eth_getBalance",
-                    "params": [chain.operator.relayer, "latest"],
-                    "id": "1",
-                    "jsonrpc": "2.0"
-                })).result);
-                operatorBalance.relayer = unitToRtx(relayerBalance);
+                if (!chain.name.includes("tron")) {
+                    const provider = new ethers.JsonRpcProvider(chain.endpoint);
+                    let relayerBalance = await provider.getBalance(chain.operator.relayer);
+                    operatorBalance.relayer = unitToEth(relayerBalance);
+                    let oracleBalance = await provider.getBalance(chain.operator.oracle);
+                    operatorBalance.oracle = unitToEth(oracleBalance);
+                    operatorBalance.symbol = chain.symbol;
+                } else {
+                    const relayerBalance = Number((await requests.post(chain.endpoint, {
+                        "method": "eth_getBalance",
+                        "params": [chain.operator.relayer, "latest"],
+                        "id": "1",
+                        "jsonrpc": "2.0"
+                    })).result);
+                    operatorBalance.relayer = unitToRtx(relayerBalance);
 
-                const oracleBalance = Number((await requests.post(chain.endpoint, {
-                    "method": "eth_getBalance",
-                    "params": [chain.operator.oracle, "latest"],
-                    "id": "1",
-                    "jsonrpc": "2.0"
-                })).result);
-                operatorBalance.oracle = unitToRtx(oracleBalance);
-            }
+                    const oracleBalance = Number((await requests.post(chain.endpoint, {
+                        "method": "eth_getBalance",
+                        "params": [chain.operator.oracle, "latest"],
+                        "id": "1",
+                        "jsonrpc": "2.0"
+                    })).result);
+                    operatorBalance.oracle = unitToRtx(oracleBalance);
+                }
 
-            if (operatorBalance.relayer < chain.operator.warnBalance) {
-                warns.push(`[${chain.name}] Balance of relayer operator ${chain.operator.relayer} is ${operatorBalance.relayer} ${chain.symbol} less than ${chain.operator.warnBalance}.`)
+                if (operatorBalance.relayer < chain.operator.warnBalance) {
+                    warns.push(`[${chain.name}] Balance of relayer operator ${chain.operator.relayer} is ${operatorBalance.relayer} ${chain.symbol} less than ${chain.operator.warnBalance}.`)
+                }
+                if (operatorBalance.oracle < chain.operator.warnBalance) {
+                    warns.push(`[${chain.name}] Balance of oracle operator ${chain.operator.oracle} is ${operatorBalance.oracle} ${chain.symbol} less than ${chain.operator.warnBalance}.`)
+                }
             }
-            if (operatorBalance.oracle < chain.operator.warnBalance) {
-                warns.push(`[${chain.name}] Balance of oracle operator ${chain.operator.oracle} is ${operatorBalance.oracle} ${chain.symbol} less than ${chain.operator.warnBalance}.`)
-            }
+            // console.log(warns);
+            return warns;
+        } catch (error) {
+            console.error(error);
+            return warns;
         }
-        // console.log(warns);
-        return warns;
     }
 
     async function checkOracleSignerBalance() {
+        fastify.log.info("==> checkOracleSignerBalance")
         const darwiniaChain = getChainById(46);
         const subAPIMultisig = darwiniaChain.contract.multisig;
         const provider = new ethers.JsonRpcProvider(darwiniaChain.endpoint);
@@ -183,21 +190,92 @@ export default fp(async (fastify) => {
     }
 
     async function checkTimeoutRelay() {
+        fastify.log.info("==> checkTimeoutRelay")
         const warns = [];
+        const now = Math.floor(Date.now() / 1000);
+        const oneDayAgo = now - 24 * 60 * 60;
+        // const oneDayAgo = 1719701000;
+        const halfHourAgo = now - 30 * 60;
+        const query = `query MessageList($timestampGt: numeric!, $timestampLt: numeric!) {
+  MessagePort(order_by: {sourceBlockTimestamp: desc},
+  	where: {
+      status: {
+        _in: [0]
+      }
+      sourceBlockTimestamp: {
+        _gt: $timestampGt,
+        _lt: $timestampLt
+      }
+    }
+  ) {
+    id
+    params
+    payload
+    sourceBlockNumber
+    sourceBlockTimestamp
+    sourceChainId
+    sourceDappAddress
+    sourceTransactionHash
+    sourceTransactionIndex
+    status
+    targetBlockNumber
+    targetBlockTimestamp
+    targetChainId
+    targetDappAddress
+    targetTransactionHash
+    targetTransactionIndex
+    ormp {
+      blockNumber
+      blockTimestamp
+      channel
+      encoded
+      eventsSummary
+      from
+      fromChainId
+      gasLimit
+      id
+      index
+      msgHash
+      oracleAssigned
+      oracleAssignedFee
+      oracle
+      relayer
+      relayerAssigned
+      relayerAssignedFee
+      to
+      toChainId
+      transactionHash
+    }
+  }
+}`;
         try {
-            const result = await axios.get("https://scan-api.msgport.xyz/messages/timespent/gt/30/minutes.json?status=inflight", { timeout: 10000 });
-            const data = result.data;
-            for (let i = 0; i < data.length; i++) {
-                // console.log(data.messages[i]);
-                const message = data[i];
-                const diffHour = (new Date().getTime() / 1000 - dayjs(data[i].sourceBlockTimestamp).unix()) / 3600;
-                if (diffHour < 24) {
-                    warns.push(`[TimeOut] ${message.sourceChainId} > ${message.targetChainId} id: ${message.id}, sourceTxHash: ${message.sourceTransactionHash}, blockTimestamp: ${message.sourceBlockTimestamp}`);
+            const result = await axios.post("https://indexer.bigdevenergy.link/ed7db02/v1/graphql", {
+                timeout: 10000,
+                query: query,
+                variables: {
+                    timestampGt: oneDayAgo,
+                    timestampLt: halfHourAgo
                 }
+            });
+            const data = result.data.data.MessagePort;
+            // console.log(oneDayAgo, halfHourAgo);
+            // console.log(data);
+            for (let i = 0; i < data.length; i++) {
+                // console.log(data[i]);
+                const message = data[i];
+                const formattedTime = new Date(message.sourceBlockTimestamp * 1000).toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                warns.push(`[TimeOut] ${message.sourceChainId} > ${message.targetChainId} index: ${message.ormp.index}, msgHash: ${message.ormp.msgHash}, blockTime: ${formattedTime}`);
             }
         } catch (e) {
             fastify.log.error(e);
-            warns.push("Msgport scan error" + e + Date.now());
+            warns.push("Msgport scan indexer error" + e + Date.now());
         }
         return warns;
     }
@@ -219,6 +297,7 @@ export default fp(async (fastify) => {
     }
 
     async function checkPonder() {
+        fastify.log.info("==> checkPonder")
         const warns = [];
         const ponders = [
             'https://ormponder.vercel.app/darwinia',
@@ -265,7 +344,7 @@ export default fp(async (fastify) => {
         }
         const data = qs.stringify({
             "title": "ORMonitor",
-            "content": toNotify.join("<br/>\r\n"),
+            "content": toNotify.join("\r\n"),
             "channel": channel,
         });
         console.log(data);

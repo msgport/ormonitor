@@ -196,6 +196,7 @@ export default fp(async (fastify) => {
         const oneDayAgo = now - 24 * 60 * 60;
         // const oneDayAgo = 1719701000;
         const halfHourAgo = now - 30 * 60;
+        const towHoursAgo = now - 60 * 60 * 2;
         const query = `query MessageList($timestampGt: numeric!, $timestampLt: numeric!) {
   MessagePort(order_by: {sourceBlockTimestamp: desc},
   	where: {
@@ -254,7 +255,7 @@ export default fp(async (fastify) => {
                 query: query,
                 variables: {
                     timestampGt: oneDayAgo,
-                    timestampLt: halfHourAgo
+                    timestampLt: towHoursAgo
                 }
             });
             const data = result.data.data.MessagePort;

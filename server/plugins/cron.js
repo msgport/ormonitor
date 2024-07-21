@@ -301,14 +301,14 @@ export default fp(async (fastify) => {
         fastify.log.info("==> checkPonder")
         const warns = [];
         const ponders = [
-            'https://ormponder.vercel.app/darwinia',
-            'https://ormponder.vercel.app/crab',
-            'https://ormponder.vercel.app/arbitrum',
-            'https://ormponder.vercel.app/ethereum',
-            'https://ormponder.vercel.app/moonbeam',
-            'https://ormponder.vercel.app/polygon',
-            'https://ormponder.vercel.app/tron',
-            'https://ormponder.vercel.app/blast',
+            'https://ormponder.darwinia.network/darwinia',
+            'https://ormponder.darwinia.network/crab',
+            'https://ormponder.darwinia.network/arbitrum',
+            'https://ormponder.darwinia.network/ethereum',
+            'https://ormponder.darwinia.network/moonbeam',
+            'https://ormponder.darwinia.network/polygon',
+            'https://ormponder.darwinia.network/tron',
+            'https://ormponder.darwinia.network/blast',
         ]
         for (const _url of ponders) {
             try {

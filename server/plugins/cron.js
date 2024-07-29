@@ -15,7 +15,7 @@ const hasNotified = {};
 
 export default fp(async (fastify) => {
 
-    cron.schedule('*/10 * * * *', async () => {
+    cron.schedule('*/14 * * * *', async () => {
         await healthCheck();
         const allWarns = [];
         allWarns.push(await checkOperatorBalance());

@@ -284,7 +284,7 @@ export default fp(async (fastify) => {
     async function checkMsgportAPI() {
         const warns = [];
         try {
-            const result = await axios.get("http://api.msgport.xyz/ormp/fee?from_address=0x9F33a4809aA708d7a399fedBa514e0A0d15EfA85&to_address=0x9F33a4809aA708d7a399fedBa514e0A0d15EfA85&refund_address=0x9F33a4809aA708d7a399fedBa514e0A0d15EfA85&from_chain_id=2494104990&to_chain_id=701&payload=0x198612682584715870", { timeout: 10000 });
+            const result = await axios.get("http://api.msgport.xyz/ormp/fee?from_address=0x9F33a4809aA708d7a399fedBa514e0A0d15EfA85&to_address=0x9F33a4809aA708d7a399fedBa514e0A0d15EfA85&refund_address=0x9F33a4809aA708d7a399fedBa514e0A0d15EfA85&from_chain_id=42161&to_chain_id=1&payload=0x198612682584715870", { timeout: 10000 });
             const data = result.data;
             console.log(data);
             if (data.code != 0 || !data.data.fee) {
